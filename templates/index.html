@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Adam Dominant & Firm - ElevenLabs & DSP Enhancer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 25, 40, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary-glow: #6366f1;
+            --secondary-glow: #a855f7;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --gradient: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 50px;
+            color: #818cf8;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        label span.value {
+            color: #818cf8;
+            font-weight: 600;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* Unified Editor Style (Matching ElevenLabs) */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(17, 25, 40, 0.45);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .editor-container:focus-within {
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            background: transparent;
+            border: none;
+            padding: 18px;
+            color: var(--text-primary);
+            font-size: 1.05rem;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+            transition: background 0.3s ease;
+        }
+
+        textarea.pulse-glow {
+            animation: textPulse 0.8s ease-in-out;
+        }
+
+        @keyframes textPulse {
+            0% { background: rgba(99, 102, 241, 0.0); }
+            50% { background: rgba(99, 102, 241, 0.15); }
+            100% { background: rgba(99, 102, 241, 0.0); }
+        }
+
+        .editor-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            background: rgba(10, 15, 30, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .char-counter {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Outline Button (Enhance) */
+        .btn-outline {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+            color: #818cf8;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            outline: none;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-outline:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Solid Dark Button (Regenerate speech) */
+        .btn-solid {
+            background: #090d16;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: white;
+            padding: 8px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-solid:hover:not(:disabled) {
+            background: #111827;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-solid:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-solid:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border-color: rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Customize Sliders */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--gradient);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Checkbox switch */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--gradient);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #c084fc;
+            border-left: 3px solid var(--secondary-glow);
+            padding-left: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Inline Spinners */
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s ease-in-out infinite;
+            display: none;
+        }
+
+        .spinner-purple {
+            border-color: rgba(129, 140, 248, 0.3);
+            border-top-color: #818cf8;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Audio Players Layout */
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            height: 100%;
+            justify-content: flex-start;
+        }
+
+        .audio-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .audio-card:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .audio-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .audio-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-card-title.enhanced {
+            color: #c084fc;
+        }
+
+        .audio-card-title.raw {
+            color: #9ca3af;
+        }
+
+        .audio-player-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        audio {
+            width: 100%;
+            height: 40px;
+            outline: none;
+            border-radius: 30px;
+        }
+
+        /* Custom download button */
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-download:hover {
+            background: var(--gradient);
+            border-color: transparent;
+            color: white;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 350px;
+            color: var(--text-secondary);
+            text-align: center;
+            gap: 15px;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Alerts & Toasts */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            display: none;
+            animation: fadeIn 0.4s ease;
+            margin-bottom: 20px;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(17, 25, 40, 0.9);
+            border: 1.5px solid var(--primary-glow);
+            color: var(--text-primary);
+            padding: 14px 22px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 30px 0;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        footer a {
+            color: #818cf8;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .tag-pill-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .tag-pill {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            outline: none;
+            user-select: none;
+        }
+
+        .tag-pill:hover {
+            background: rgba(168, 85, 247, 0.08);
+            border-color: rgba(168, 85, 247, 0.3);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .tag-pill:active {
+            transform: translateY(0);
+        }
+
+        .tag-pill code {
+            font-family: monospace;
+            font-weight: 600;
+            color: #c084fc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="badge">Model: Eleven v3 (Beta)</div>
+            <h1>TTS Adam Dominant & Firm</h1>
+            <p>Giao diện sinh giọng nói chuyên nghiệp kết hợp bộ lọc làm ấm & nén âm thanh cục bộ</p>
+        </header>
+
+        <div class="alert alert-error" id="errorAlert">Lỗi hiển thị ở đây</div>
+
+        <div class="main-layout">
+            <!-- Left Panel: Form Input & ElevenLabs Settings -->
+            <div class="glass-card">
+                <div class="section-title">Nhập Văn Bản & Cấu Hình Giọng Đọc</div>
+                
+                <!-- Unified editor box matching ElevenLabs -->
+                <div class="editor-container">
+                    <textarea id="textInput" placeholder="Nhập hoặc dán nội dung văn bản của bạn vào đây..." maxlength="5000"></textarea>
+                    
+                    <div class="editor-footer">
+                        <div class="char-counter">
+                            <span id="charCount">0</span> / 5,000 ký tự
+                        </div>
+                        
+                        <div class="editor-actions">
+                            <!-- Enhance button with Sparkles icon -->
+                            <button class="btn-outline" id="btnEnhance" title="Tự động phân tích ngữ cảnh và chèn tag cảm xúc [laughs], [sighs]...">
+                                <span class="spinner spinner-purple" id="enhanceSpinner"></span>
+                                <svg id="enhanceIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/>
+                                    <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5Z"/>
+                                    <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z"/>
+                                </svg>
+                                <span id="enhanceText">Enhance</span>
+                            </button>
+                            
+                            <!-- Generate button -->
+                            <button class="btn-solid" id="btnGenerate">
+                                <span class="spinner" id="generateSpinner"></span>
+                                <span id="btnText">Regenerate speech</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Cấu hình ElevenLabs (Giọng Adam)</div>
+
+                <div class="form-group">
+                    <label for="stability">Độ ổn định (Stability) <span class="value" id="stabilityVal">0.75</span></label>
+                    <input type="range" id="stability" min="0" max="1" step="0.05" value="0.75">
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">
+                        <span>Biểu cảm hơn</span>
+                        <span>Nhất quán (Firm)</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="similarity">Độ giống giọng gốc (Similarity) <span class="value" id="similarityVal">0.85</span></label>
+                    <input type="range" id="similarity" min="0" max="1" step="0.05" value="0.85">
+                </div>
+
+                <div class="form-group">
+                    <label for="style">Cường điệu hóa phong cách (Style) <span class="value" id="styleVal">0.00</span></label>
+                    <input type="range" id="style" min="0" max="1" step="0.05" value="0.00">
+                </div>
+
+                <div class="switch-container">
+                    <span style="font-size:0.95rem; font-weight:500;">Tăng cường độ rõ (Speaker Boost)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="speakerBoost" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Collapsible Tag Library Card -->
+                <div class="tag-library-card" style="margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                    <div class="section-title" id="tagLibHeader" style="cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span>Thư Viện Thẻ Cảm Xúc & Kiểu Nói</span>
+                        <span id="tagLibToggleIcon" style="font-size: 0.85rem; transition: transform 0.3s; transform: rotate(0deg); color: var(--text-secondary);">▼</span>
+                    </div>
+                    
+                    <div id="tagLibBody" style="display: none; flex-direction: column; gap: 15px; animation: fadeIn 0.3s ease;">
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 5px;">
+                            Bấm vào bất kỳ thẻ nào bên dưới để chèn nhanh vào vị trí con trỏ chuột trong khung soạn thảo:
+                        </p>
+                        
+                        <!-- Category 1 -->
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: #818cf8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                <span style="display:inline-block; width:6px; height:6px; background:#818cf8; border-radius:50%;"></span>
+                                Cảm xúc giọng đọc (Emotion)
+                            </div>
+                            <div class="tag-pill-container" id="emotionTagsContainer"></div>
+                        </div>
+
+                        <!-- Category 2 -->
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: #c084fc; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                <span style="display:inline-block; width:6px; height:6px; background:#c084fc; border-radius:50%;"></span>
+                                Kiểu nói / Cách thể hiện (Style)
+                            </div>
+                            <div class="tag-pill-container" id="styleTagsContainer"></div>
+                        </div>
+
+                        <!-- Category 3 -->
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: #10b981; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                <span style="display:inline-block; width:6px; height:6px; background:#10b981; border-radius:50%;"></span>
+                                Biểu cảm không lời (Non-verbal)
+                            </div>
+                            <div class="tag-pill-container" id="vocalTagsContainer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: DSP Settings & Audio Previews -->
+            <div class="glass-card">
+                <div class="section-title">Bộ lọc DSP Tăng Cường Âm Thanh</div>
+                
+                <div class="switch-container" style="margin-bottom: 20px;">
+                    <span style="font-size:0.95rem; font-weight:500;">Kích hoạt bộ lọc tăng cường DSP</span>
+                    <label class="switch">
+                        <input type="checkbox" id="dspActive" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div id="dspControls">
+                    <div class="form-group">
+                        <label for="warmth">EQ trầm ấm - 150 Hz (Warmth Boost) <span class="value" id="warmthVal">+3.5 dB</span></label>
+                        <input type="range" id="warmth" min="0" max="8" step="0.5" value="3.5">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">
+                            <span>Mỏng tiếng</span>
+                            <span>Trầm ấm & Dày giọng</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clarity">EQ sắc nét - 3.2 kHz (Presence Boost) <span class="value" id="clarityVal">+2.5 dB</span></label>
+                        <input type="range" id="clarity" min="0" max="6" step="0.5" value="2.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="threshold">Ngưỡng nén Compressor (Threshold) <span class="value" id="thresholdVal">-18.0 dB</span></label>
+                        <input type="range" id="threshold" min="-36" max="-6" step="1" value="-18">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ratio">Tỉ lệ nén Compressor (Ratio) <span class="value" id="ratioVal">3.0:1</span></label>
+                        <input type="range" id="ratio" min="1.5" max="6" step="0.5" value="3.0">
+                    </div>
+                </div>
+
+                <hr style="border:0; border-top:1px solid var(--border-color); margin:25px 0;">
+
+                <div class="section-title">Kết Quả Âm Thanh</div>
+
+                <div class="result-panel" id="resultPanel">
+                    <div class="empty-state" id="emptyState">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                        <p>Nhập văn bản và nhấn "Regenerate speech" để xem kết quả so sánh tại đây.</p>
+                    </div>
+
+                    <!-- Enhanced Audio Card -->
+                    <div class="audio-card" id="enhancedCard" style="display: none;">
+                        <div class="audio-card-header">
+                            <div class="audio-card-title enhanced">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                </svg>
+                                Giọng Đọc Đã Tăng Cường (DSP Enhanced)
+                            </div>
+                            <a href="#" class="btn-download" id="enhancedDownload" download="adam_enhanced.wav">
+                                Tải về WAV
+                            </a>
+                        </div>
+                        <div class="audio-player-wrapper">
+                            <audio id="enhancedAudio" controls></audio>
+                        </div>
+                    </div>
+
+                    <!-- Raw Audio Card -->
+                    <div class="audio-card" id="rawCard" style="display: none;">
+                        <div class="audio-card-header">
+                            <div class="audio-card-title raw">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                </svg>
+                                Giọng Đọc Gốc (Raw Audio)
+                            </div>
+                            <a href="#" class="btn-download" id="rawDownload" download="adam_raw.wav">
+                                Tải về WAV
+                            </a>
+                        </div>
+                        <div class="audio-player-wrapper">
+                            <audio id="rawAudio" controls></audio>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Dự án: <a href="https://github.com/lylamkhai218/TTS_Adam_Dominant_Firm" target="_blank">TTS_Adam_Dominant_Firm</a> | Phát triển phục vụ T&TVina
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="notificationToast">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success-color);">
+            <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+        </svg>
+        <span id="toastMsg">Chèn tag cảm xúc thành công!</span>
+    </div>
+
+    <script>
+        // Update range values in UI
+        const sliders = [
+            { id: 'stability', valId: 'stabilityVal', suffix: '' },
+            { id: 'similarity', valId: 'similarityVal', suffix: '' },
+            { id: 'style', valId: 'styleVal', suffix: '' },
+            { id: 'warmth', valId: 'warmthVal', suffix: ' dB', prefix: '+' },
+            { id: 'clarity', valId: 'clarityVal', suffix: ' dB', prefix: '+' },
+            { id: 'threshold', valId: 'thresholdVal', suffix: ' dB' },
+            { id: 'ratio', valId: 'ratioVal', suffix: ':1' }
+        ];
+
+        sliders.forEach(slider => {
+            const input = document.getElementById(slider.id);
+            const display = document.getElementById(slider.valId);
+            if (input && display) {
+                input.addEventListener('input', (e) => {
+                    let val = parseFloat(e.target.value).toFixed(slider.id === 'ratio' || slider.id === 'stability' || slider.id === 'similarity' || slider.id === 'style' ? 2 : 1);
+                    if (slider.id === 'threshold') val = parseInt(e.target.value);
+                    const pref = slider.prefix && val > 0 ? slider.prefix : '';
+                    display.textContent = `${pref}${val}${slider.suffix}`;
+                });
+            }
+        });
+
+        // Toggle DSP controls visibility
+        const dspActive = document.getElementById('dspActive');
+        const dspControls = document.getElementById('dspControls');
+        dspActive.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                dspControls.style.opacity = '1';
+                dspControls.style.pointerEvents = 'auto';
+                dspControls.style.transition = 'all 0.3s ease';
+            } else {
+                dspControls.style.opacity = '0.4';
+                dspControls.style.pointerEvents = 'none';
+                dspControls.style.transition = 'all 0.3s ease';
+            }
+        });
+
+        // Text area character count
+        const textInput = document.getElementById('textInput');
+        const charCount = document.getElementById('charCount');
+        textInput.addEventListener('input', (e) => {
+            charCount.textContent = e.target.value.length;
+        });
+
+        // UI elements for action
+        const btnGenerate = document.getElementById('btnGenerate');
+        const generateSpinner = document.getElementById('generateSpinner');
+        const btnText = document.getElementById('btnText');
+        
+        const btnEnhance = document.getElementById('btnEnhance');
+        const enhanceSpinner = document.getElementById('enhanceSpinner');
+        const enhanceIcon = document.getElementById('enhanceIcon');
+        const enhanceText = document.getElementById('enhanceText');
+        
+        const errorAlert = document.getElementById('errorAlert');
+        const emptyState = document.getElementById('emptyState');
+        const toast = document.getElementById('notificationToast');
+        const toastMsg = document.getElementById('toastMsg');
+        
+        const rawCard = document.getElementById('rawCard');
+        const rawAudio = document.getElementById('rawAudio');
+        const rawDownload = document.getElementById('rawDownload');
+        
+        const enhancedCard = document.getElementById('enhancedCard');
+        const enhancedAudio = document.getElementById('enhancedAudio');
+        const enhancedDownload = document.getElementById('enhancedDownload');
+
+        // Toast function
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ENHANCE TEXT ACTION
+        btnEnhance.addEventListener('click', async () => {
+            const text = textInput.value.trim();
+            if (!text) {
+                showError("Vui lòng nhập văn bản trước khi Enhance.");
+                return;
+            }
+
+            // Hide previous errors
+            errorAlert.style.display = 'none';
+            
+            // Set loading state for Enhance
+            btnEnhance.disabled = true;
+            enhanceIcon.style.display = 'none';
+            enhanceSpinner.style.display = 'block';
+            enhanceText.textContent = 'Enhancing...';
+
+            try {
+                const response = await fetch('/api/enhance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || result.error) {
+                    throw new Error(result.error || `HTTP error ${response.status}`);
+                }
+
+                // Update text area
+                textInput.value = result.enhanced_text;
+                charCount.textContent = result.enhanced_text.length;
+                
+                // Trigger pulse animation
+                textInput.classList.remove('pulse-glow');
+                void textInput.offsetWidth; // Trigger reflow to restart animation
+                textInput.classList.add('pulse-glow');
+
+                // Show success toast
+                if (result.method === 'gemini_api') {
+                    showToast("AI đã chèn tag cảm xúc thành công!");
+                } else {
+                    showToast("Đã chèn tag bằng bộ lọc cục bộ!");
+                }
+
+            } catch (err) {
+                showError(err.message || "Không thể tự động chèn tag cảm xúc.");
+            } finally {
+                // Restore button state
+                btnEnhance.disabled = false;
+                enhanceSpinner.style.display = 'none';
+                enhanceIcon.style.display = 'block';
+                enhanceText.textContent = 'Enhance';
+            }
+        });
+
+        // GENERATE SPEECH ACTION
+        btnGenerate.addEventListener('click', async () => {
+            const text = textInput.value.trim();
+            if (!text) {
+                showError("Vui lòng nhập văn bản cần đọc.");
+                return;
+            }
+
+            // Hide previous errors
+            errorAlert.style.display = 'none';
+            
+            // Set loading state
+            btnGenerate.disabled = true;
+            generateSpinner.style.display = 'block';
+            btnText.textContent = 'Generating...';
+
+            const payload = {
+                text: text,
+                stability: parseFloat(document.getElementById('stability').value),
+                similarity: parseFloat(document.getElementById('similarity').value),
+                style: parseFloat(document.getElementById('style').value),
+                use_speaker_boost: document.getElementById('speakerBoost').checked,
+                skip_enhance: !document.getElementById('dspActive').checked,
+                warmth_gain: parseFloat(document.getElementById('warmth').value),
+                clarity_gain: parseFloat(document.getElementById('clarity').value),
+                threshold: parseFloat(document.getElementById('threshold').value),
+                ratio: parseFloat(document.getElementById('ratio').value)
+            };
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || result.error) {
+                    throw new Error(result.error || `HTTP error ${response.status}`);
+                }
+
+                // Success! Load audio sources
+                emptyState.style.display = 'none';
+                
+                // Set Raw Card
+                rawAudio.src = result.raw_url;
+                rawDownload.href = result.raw_url;
+                rawCard.style.display = 'flex';
+                rawAudio.load();
+
+                // Set Enhanced Card
+                if (result.enhanced_url) {
+                    enhancedAudio.src = result.enhanced_url;
+                    enhancedDownload.href = result.enhanced_url;
+                    enhancedCard.style.display = 'flex';
+                    enhancedAudio.load();
+                    // Play enhanced version by default
+                    enhancedAudio.play().catch(e => console.log("Auto-play blocked by browser."));
+                } else {
+                    enhancedCard.style.display = 'none';
+                    rawAudio.play().catch(e => console.log("Auto-play blocked by browser."));
+                }
+
+            } catch (err) {
+                showError(err.message || "Đã xảy ra lỗi trong quá trình tạo giọng nói.");
+            } finally {
+                // Restore button state
+                btnGenerate.disabled = false;
+                generateSpinner.style.display = 'none';
+                btnText.textContent = 'Regenerate speech';
+            }
+        });
+
+        // Tag Library setup
+        const emotionTags = [
+            { tag: '[happy]', label: 'vui vẻ' },
+            { tag: '[excited]', label: 'hào hứng' },
+            { tag: '[cheerful]', label: 'tươi vui' },
+            { tag: '[energetic]', label: 'đầy năng lượng' },
+            { tag: '[calm]', label: 'bình tĩnh' },
+            { tag: '[relaxed]', label: 'thư giãn' },
+            { tag: '[soft]', label: 'nhẹ nhàng' },
+            { tag: '[gentle]', label: 'dịu dàng' },
+            { tag: '[sad]', label: 'buồn' },
+            { tag: '[emotional]', label: 'xúc động' },
+            { tag: '[serious]', label: 'nghiêm túc' },
+            { tag: '[dramatic]', label: 'kịch tính' },
+            { tag: '[angry]', label: 'tức giận' },
+            { tag: '[frustrated]', label: 'khó chịu' },
+            { tag: '[scared]', label: 'sợ hãi' },
+            { tag: '[nervous]', label: 'lo lắng' },
+            { tag: '[confident]', label: 'tự tin' },
+            { tag: '[mysterious]', label: 'bí ẩn' },
+            { tag: '[sarcastic]', label: 'mỉa mai' },
+            { tag: '[playful]', label: 'tinh nghịch' },
+            { tag: '[seductive]', label: 'quyến rũ' },
+            { tag: '[romantic]', label: 'lãng mạn' },
+            { tag: '[inspirational]', label: 'truyền cảm hứng' },
+            { tag: '[motivational]', label: 'tạo động lực' },
+            { tag: '[professional]', label: 'chuyên nghiệp' },
+            { tag: '[authoritative]', label: 'uy quyền' },
+            { tag: '[cinematic]', label: 'điện ảnh' },
+            { tag: '[epic]', label: 'hùng tráng' },
+            { tag: '[funny]', label: 'hài hước' },
+            { tag: '[awkward]', label: 'ngượng ngùng' },
+            { tag: '[whispering]', label: 'thì thầm' },
+            { tag: '[crying]', label: 'khóc' },
+            { tag: '[shouting]', label: 'hét lớn' }
+        ];
+
+        const styleTags = [
+            { tag: '[laughing]', label: 'cười lớn' },
+            { tag: '[chuckles]', label: 'cười khúc khích' },
+            { tag: '[giggles]', label: 'cười khanh khách' },
+            { tag: '[sighs]', label: 'thở dài' },
+            { tag: '[gasping]', label: 'thở hổn hển' },
+            { tag: '[breathing heavily]', label: 'thở nặng nhọc' },
+            { tag: '[stuttering]', label: 'nói lắp' },
+            { tag: '[pausing]', label: 'ngắt nghỉ' },
+            { tag: '[whispering]', label: 'nói thì thầm' },
+            { tag: '[yelling]', label: 'la hét' },
+            { tag: '[murmuring]', label: 'lẩm bẩm' },
+            { tag: '[speaking fast]', label: 'nói nhanh' },
+            { tag: '[speaking slowly]', label: 'nói chậm' },
+            { tag: '[monotone]', label: 'giọng đều đều' },
+            { tag: '[storytelling]', label: 'kể chuyện' },
+            { tag: '[conversational]', label: 'trò chuyện' },
+            { tag: '[announcer style]', label: 'phát thanh viên' },
+            { tag: '[trailer voice]', label: 'trailer phim' },
+            { tag: '[podcast tone]', label: 'giọng podcast' },
+            { tag: '[ASMR style]', label: 'phong cách ASMR' }
+        ];
+
+        const vocalSounds = [
+            { tag: '[haha]', label: 'ha ha' },
+            { tag: '[hmm]', label: 'hừm' },
+            { tag: '[ahh]', label: 'à / ahh' },
+            { tag: '[oh]', label: 'ô' },
+            { tag: '[uh]', label: 'ừm' },
+            { tag: '[um]', label: 'umm' },
+            { tag: '[eh]', label: 'eh' },
+            { tag: '[tch]', label: 'chậc' },
+            { tag: '[mhm]', label: 'ừ hử' },
+            { tag: '[gasp]', label: 'hít mạnh' },
+            { tag: '[sniff]', label: 'sụt sịt' },
+            { tag: '[sob]', label: 'nức nở' },
+            { tag: '[cough]', label: 'ho' },
+            { tag: '[clearing throat]', label: 'hắng giọng' },
+            { tag: '[lip smack]', label: 'chép miệng' },
+            { tag: '[exhale]', label: 'thở ra' },
+            { tag: '[inhale]', label: 'hít vào' }
+        ];
+
+        function renderTags(containerId, tagList) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            tagList.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'tag-pill';
+                btn.innerHTML = `<code>${item.tag}</code> ${item.label}`;
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    insertTag(item.tag);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function insertTag(tag) {
+            const start = textInput.selectionStart;
+            const end = textInput.selectionEnd;
+            const text = textInput.value;
+            
+            // Insert tag with spaces around it
+            const before = text.substring(0, start);
+            const after = text.substring(end);
+            const beforeSpace = before.endsWith(' ') || before === '' ? '' : ' ';
+            const afterSpace = after.startsWith(' ') || after === '' ? '' : ' ';
+            
+            const newText = before + beforeSpace + tag + afterSpace + after;
+            textInput.value = newText;
+            
+            // Set selection back
+            const newCursor = start + beforeSpace.length + tag.length + afterSpace.length;
+            textInput.focus();
+            textInput.setSelectionRange(newCursor, newCursor);
+            
+            // Update char count
+            charCount.textContent = newText.length;
+            showToast(`Đã chèn thẻ ${tag} thành công!`);
+        }
+
+        // Toggle tag library
+        const tagLibHeader = document.getElementById('tagLibHeader');
+        const tagLibBody = document.getElementById('tagLibBody');
+        const tagLibToggleIcon = document.getElementById('tagLibToggleIcon');
+
+        tagLibHeader.addEventListener('click', () => {
+            const isHidden = tagLibBody.style.display === 'none';
+            if (isHidden) {
+                tagLibBody.style.display = 'flex';
+                tagLibToggleIcon.style.transform = 'rotate(180deg)';
+                // Render tags dynamically
+                renderTags('emotionTagsContainer', emotionTags);
+                renderTags('styleTagsContainer', styleTags);
+                renderTags('vocalTagsContainer', vocalSounds);
+            } else {
+                tagLibBody.style.display = 'none';
+                tagLibToggleIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        function showError(msg) {
+            errorAlert.textContent = msg;
+            errorAlert.style.display = 'block';
+            errorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>

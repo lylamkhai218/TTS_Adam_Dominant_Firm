@@ -1,0 +1,10 @@
+# API Keys and sensitive information
+.env
+
+# Python caching
+__pycache__/
+*.pyc
+
+# Locally generated audio outputs (prevent bloating Git)
+*.wav
+static/*.wav
