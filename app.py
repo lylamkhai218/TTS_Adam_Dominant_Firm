@@ -176,7 +176,8 @@ def generate_speech():
         response_data = {
             "success": True,
             "sample_rate": selected_rate,
-            "raw_url": f"/static/{raw_filename}"
+            "raw_url": f"/static/{raw_filename}",
+            "characters_used": len(text)
         }
         if has_enhanced:
             response_data["enhanced_url"] = f"/static/{enhanced_filename}"
@@ -188,6 +189,32 @@ def generate_speech():
     except Exception as err:
         print(f"General error: {err}")
         return jsonify({"error": f"Lỗi máy chủ: {str(err)}"}), 500
+
+
+@app.route('/api/subscription', methods=['GET'])
+def get_subscription_info():
+    """
+    Retrieves current ElevenLabs subscription usage (characters used and limit).
+    """
+    load_dotenv(override=True)
+    api_key = os.getenv("ELEVENLABS_API_KEY")
+    if not api_key:
+        return jsonify({"error": "Missing ElevenLabs API Key in server configuration."}), 400
+        
+    try:
+        import requests
+        headers = {"xi-api-key": api_key}
+        res = requests.get("https://api.elevenlabs.io/v1/user/subscription", headers=headers)
+        if res.ok:
+            sub_data = res.json()
+            return jsonify({
+                "character_count": sub_data.get("character_count", 0),
+                "character_limit": sub_data.get("character_limit", 0)
+            })
+        else:
+            return jsonify({"error": f"HTTP error {res.status_code} from ElevenLabs"}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/enhance', methods=['POST'])

@@ -655,7 +655,10 @@
                     </div>
                 </div>
 
-                <div class="section-title">Cấu hình ElevenLabs (Giọng Adam)</div>
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Cấu hình ElevenLabs (Giọng Adam)</span>
+                    <span id="subscriptionUsage" style="font-size: 0.78rem; font-weight: normal; color: var(--text-secondary); background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); padding: 2px 8px; border-radius: 6px; display: none;"></span>
+                </div>
 
                 <div class="form-group">
                     <label for="stability">Độ ổn định (Stability) <span class="value" id="stabilityVal">0.75</span></label>
@@ -769,6 +772,13 @@
                 <div class="section-title">Kết Quả Âm Thanh</div>
 
                 <div class="result-panel" id="resultPanel">
+                    <div id="usageStats" style="display: none; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 10px 14px; border-radius: 8px; margin-bottom: 5px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #c084fc;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span>Ký tự đã tiêu thụ (Tokens): <strong id="lastUsedChars" style="color: var(--text-primary);">0</strong> ký tự</span>
+                    </div>
+
                     <div class="empty-state" id="emptyState">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -1033,6 +1043,15 @@
                     rawAudio.play().catch(e => console.log("Auto-play blocked by browser."));
                 }
 
+                // Show usage stats
+                if (result.characters_used !== undefined) {
+                    document.getElementById('lastUsedChars').textContent = result.characters_used;
+                    document.getElementById('usageStats').style.display = 'flex';
+                }
+
+                // Refresh subscription usage info
+                updateSubscriptionUsage();
+
             } catch (err) {
                 showError(err.message || "Đã xảy ra lỗi trong quá trình tạo giọng nói.");
             } finally {
@@ -1181,6 +1200,25 @@
                 tagLibToggleIcon.style.transform = 'rotate(0deg)';
             }
         });
+
+        async function updateSubscriptionUsage() {
+            try {
+                const response = await fetch('/api/subscription');
+                const data = await response.json();
+                if (response.ok && !data.error) {
+                    const count = data.character_count.toLocaleString();
+                    const limit = data.character_limit.toLocaleString();
+                    const badge = document.getElementById('subscriptionUsage');
+                    badge.textContent = `Đã dùng: ${count} / ${limit}`;
+                    badge.style.display = 'inline-block';
+                }
+            } catch (err) {
+                console.error("Error fetching subscription stats:", err);
+            }
+        }
+
+        // Fetch subscription usage on page load
+        document.addEventListener('DOMContentLoaded', updateSubscriptionUsage);
 
         function showError(msg) {
             errorAlert.textContent = msg;
