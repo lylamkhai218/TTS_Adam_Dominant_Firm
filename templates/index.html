@@ -1206,10 +1206,12 @@
                 const response = await fetch('/api/subscription');
                 const data = await response.json();
                 if (response.ok && !data.error) {
-                    const count = data.character_count.toLocaleString();
-                    const limit = data.character_limit.toLocaleString();
+                    const count = data.character_count;
+                    const limit = data.character_limit;
+                    const remaining = Math.max(0, limit - count);
+                    
                     const badge = document.getElementById('subscriptionUsage');
-                    badge.textContent = `Đã dùng: ${count} / ${limit}`;
+                    badge.textContent = `Đã dùng: ${count.toLocaleString()} / ${limit.toLocaleString()} (Còn lại: ${remaining.toLocaleString()})`;
                     badge.style.display = 'inline-block';
                 }
             } catch (err) {
