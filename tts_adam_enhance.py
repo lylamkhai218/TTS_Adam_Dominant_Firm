@@ -208,6 +208,20 @@ def main():
         print("Error: Input text is empty.")
         sys.exit(1)
 
+    # Automatically optimize settings for expression if emotional tags are detected in square brackets
+    import re
+    has_tags = bool(re.search(r'\[[a-zA-Z\s]+\]', text_to_speak))
+    if has_tags:
+        adjusted_params = []
+        if args.stability == 0.75:
+            args.stability = 0.35
+            adjusted_params.append("stability=0.35")
+        if args.style == 0.0:
+            args.style = 0.25
+            adjusted_params.append("style=0.25")
+        if adjusted_params:
+            print(f"Notice: Detected emotional tags in text. Automatically optimized voice settings for expressiveness: {', '.join(adjusted_params)}")
+
     # Initialize ElevenLabs Client
     client = ElevenLabs(api_key=api_key)
 

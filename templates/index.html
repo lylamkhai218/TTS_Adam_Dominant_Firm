@@ -655,9 +655,39 @@
                     </div>
                 </div>
 
-                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <span>Cấu hình ElevenLabs (Giọng Adam)</span>
-                    <span id="subscriptionUsage" style="font-size: 0.78rem; font-weight: normal; color: var(--text-secondary); background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); padding: 2px 8px; border-radius: 6px; display: none;"></span>
+                </div>
+
+                <!-- Account Status & Token Usage Card -->
+                <div class="account-info-card" id="accountInfoCard" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 14px 18px; margin-bottom: 25px; font-size: 0.88rem; display: none; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Tài khoản:
+                        </span>
+                        <strong id="accApiKey" style="color: var(--text-primary); font-family: monospace;">Đang tải...</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Đã sử dụng:
+                        </span>
+                        <strong id="accUsedTokens" style="color: var(--text-primary);">Đang tải...</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Ký tự khả dụng (còn lại):
+                        </span>
+                        <strong id="accRemainingTokens" style="color: #10b981;">Đang tải...</strong>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -879,11 +909,49 @@
             }
         });
 
-        // Text area character count
+        // Text area character count and auto-optimization for emotional tags
         const textInput = document.getElementById('textInput');
         const charCount = document.getElementById('charCount');
+        
+        let hasTriggeredAutoOptimize = false;
+
+        function optimizeForExpression() {
+            const stabilitySlider = document.getElementById('stability');
+            const stabilityVal = document.getElementById('stabilityVal');
+            let updated = false;
+
+            if (stabilitySlider && parseFloat(stabilitySlider.value) > 0.5) {
+                stabilitySlider.value = 0.35;
+                if (stabilityVal) stabilityVal.textContent = "0.35";
+                updated = true;
+            }
+
+            const styleSlider = document.getElementById('style');
+            const styleVal = document.getElementById('styleVal');
+            if (styleSlider && parseFloat(styleSlider.value) < 0.2) {
+                styleSlider.value = 0.25;
+                if (styleVal) styleVal.textContent = "0.25";
+                updated = true;
+            }
+
+            return updated;
+        }
+
         textInput.addEventListener('input', (e) => {
-            charCount.textContent = e.target.value.length;
+            const text = e.target.value;
+            charCount.textContent = text.length;
+            
+            // Auto detect manual insertion of emotional tags
+            const hasTags = /\[[a-zA-Z\s]+\]/.test(text);
+            if (hasTags && !hasTriggeredAutoOptimize) {
+                const optimized = optimizeForExpression();
+                if (optimized) {
+                    showToast("Đã tự động tối ưu độ ổn định & phong cách để giọng đọc biểu cảm!");
+                    hasTriggeredAutoOptimize = true;
+                }
+            } else if (!hasTags) {
+                hasTriggeredAutoOptimize = false;
+            }
         });
 
         // UI elements for action
@@ -959,11 +1027,17 @@
                 void textInput.offsetWidth; // Trigger reflow to restart animation
                 textInput.classList.add('pulse-glow');
 
+                // Optimize voice settings for expression
+                const optimized = optimizeForExpression();
+                if (optimized) {
+                    hasTriggeredAutoOptimize = true;
+                }
+
                 // Show success toast
                 if (result.method === 'gemini_api') {
-                    showToast("AI đã chèn tag cảm xúc thành công!");
+                    showToast(optimized ? "AI đã chèn tag cảm xúc & tối ưu cấu hình để giọng diễn cảm hơn!" : "AI đã chèn tag cảm xúc thành công!");
                 } else {
-                    showToast("Đã chèn tag bằng bộ lọc cục bộ!");
+                    showToast(optimized ? "Đã chèn tag & tối ưu cấu hình để giọng diễn cảm hơn!" : "Đã chèn tag bằng bộ lọc cục bộ!");
                 }
 
             } catch (err) {
@@ -1178,7 +1252,15 @@
             
             // Update char count
             charCount.textContent = newText.length;
-            showToast(`Đã chèn thẻ ${tag} thành công!`);
+            
+            // Optimize voice settings for expression
+            const optimized = optimizeForExpression();
+            if (optimized) {
+                hasTriggeredAutoOptimize = true;
+                showToast(`Đã chèn thẻ ${tag} & tối ưu cấu hình để giọng diễn cảm hơn!`);
+            } else {
+                showToast(`Đã chèn thẻ ${tag} thành công!`);
+            }
         }
 
         // Toggle tag library
@@ -1205,14 +1287,30 @@
             try {
                 const response = await fetch('/api/subscription');
                 const data = await response.json();
-                if (response.ok && !data.error) {
+                
+                const card = document.getElementById('accountInfoCard');
+                const accApiKey = document.getElementById('accApiKey');
+                const accUsedTokens = document.getElementById('accUsedTokens');
+                const accRemainingTokens = document.getElementById('accRemainingTokens');
+                
+                if (data.api_key && accApiKey) {
+                    accApiKey.textContent = data.api_key;
+                }
+                
+                if (data.success) {
                     const count = data.character_count;
                     const limit = data.character_limit;
                     const remaining = Math.max(0, limit - count);
                     
-                    const badge = document.getElementById('subscriptionUsage');
-                    badge.textContent = `Đã dùng: ${count.toLocaleString()} / ${limit.toLocaleString()} (Còn lại: ${remaining.toLocaleString()})`;
-                    badge.style.display = 'inline-block';
+                    if (accUsedTokens) accUsedTokens.textContent = `${count.toLocaleString()} / ${limit.toLocaleString()}`;
+                    if (accRemainingTokens) {
+                        accRemainingTokens.textContent = remaining.toLocaleString();
+                        accRemainingTokens.style.color = '#10b981'; // Green for active usage
+                    }
+                    if (card) card.style.display = 'flex';
+                } else {
+                    if (card) card.style.display = 'none';
+                    console.warn("Could not load user subscription details (missing permissions):", data.error_message);
                 }
             } catch (err) {
                 console.error("Error fetching subscription stats:", err);

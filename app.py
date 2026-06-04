@@ -194,12 +194,18 @@ def generate_speech():
 @app.route('/api/subscription', methods=['GET'])
 def get_subscription_info():
     """
-    Retrieves current ElevenLabs subscription usage (characters used and limit).
+    Retrieves current ElevenLabs subscription usage (characters used and limit)
+    and details about the active API key.
     """
     load_dotenv(override=True)
     api_key = os.getenv("ELEVENLABS_API_KEY")
     if not api_key:
         return jsonify({"error": "Missing ElevenLabs API Key in server configuration."}), 400
+        
+    masked_key = "Không xác định"
+    if api_key:
+        api_key_str = api_key.strip()
+        masked_key = api_key_str[:11] + "..." + api_key_str[-4:] if len(api_key_str) > 15 else api_key_str
         
     try:
         import requests
@@ -208,13 +214,24 @@ def get_subscription_info():
         if res.ok:
             sub_data = res.json()
             return jsonify({
+                "success": True,
+                "api_key": masked_key,
                 "character_count": sub_data.get("character_count", 0),
                 "character_limit": sub_data.get("character_limit", 0)
             })
         else:
-            return jsonify({"error": f"HTTP error {res.status_code} from ElevenLabs"}), res.status_code
+            return jsonify({
+                "success": False,
+                "api_key": masked_key,
+                "status_code": res.status_code,
+                "error_message": "Thiếu quyền user_read" if res.status_code in [401, 403] else f"Lỗi HTTP {res.status_code}"
+            })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "success": False,
+            "api_key": masked_key,
+            "error_message": str(e)
+        }), 500
 
 
 @app.route('/api/enhance', methods=['POST'])
